@@ -13,29 +13,29 @@ let running = false;
 let nodeState = [];
 
 // ── DOM refs ────────────────────────────────────────────────────────────────
-const canvas       = document.getElementById('bfs-canvas');
-const ctx          = canvas.getContext('2d');
+const canvas = document.getElementById('bfs-canvas');
+const ctx = canvas.getContext('2d');
 const numNodesInput = document.getElementById('num-nodes');
-const edgeFromIn   = document.getElementById('edge-from');
-const edgeToIn     = document.getElementById('edge-to');
-const addEdgeBtn   = document.getElementById('add-edge-btn');
-const edgeListEl   = document.getElementById('edge-list');
-const startNodeIn  = document.getElementById('start-node');
-const endNodeIn    = document.getElementById('end-node');
-const runBtn       = document.getElementById('run-btn');
-const pauseBtn     = document.getElementById('pause-btn');
-const resetBtn     = document.getElementById('reset-btn');
-const speedSlider  = document.getElementById('speed-slider');
-const speedLabel   = document.getElementById('speed-label');
-const logBody      = document.getElementById('log-body');
-const clearLogBtn  = document.getElementById('clear-log-btn');
-const statusChip   = document.getElementById('status-chip');
-const stepCounter  = document.getElementById('step-counter');
+const edgeFromIn = document.getElementById('edge-from');
+const edgeToIn = document.getElementById('edge-to');
+const addEdgeBtn = document.getElementById('add-edge-btn');
+const edgeListEl = document.getElementById('edge-list');
+const startNodeIn = document.getElementById('start-node');
+const endNodeIn = document.getElementById('end-node');
+const runBtn = document.getElementById('run-btn');
+const pauseBtn = document.getElementById('pause-btn');
+const resetBtn = document.getElementById('reset-btn');
+const speedSlider = document.getElementById('speed-slider');
+const speedLabel = document.getElementById('speed-label');
+const logBody = document.getElementById('log-body');
+const clearLogBtn = document.getElementById('clear-log-btn');
+const statusChip = document.getElementById('status-chip');
+const stepCounter = document.getElementById('step-counter');
 const visitedChipsEl = document.getElementById('visited-chips');
-const pathResult   = document.getElementById('path-result');
-const pathValue    = document.getElementById('path-value');
-const alertBox     = document.getElementById('alert-box');
-const presetBtn    = document.getElementById('preset-btn');
+const pathResult = document.getElementById('path-result');
+const pathValue = document.getElementById('path-value');
+const alertBox = document.getElementById('alert-box');
+const presetBtn = document.getElementById('preset-btn');
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 function showAlert(msg, type = 'error') {
@@ -54,14 +54,14 @@ speedSlider.addEventListener('input', () => {
 function layoutNodes(n) {
   const W = canvas.offsetWidth || 700;
   const H = 400;
-  canvas.width  = W * window.devicePixelRatio;
+  canvas.width = W * window.devicePixelRatio;
   canvas.height = H * window.devicePixelRatio;
   ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
   canvas.style.height = H + 'px';
 
-  const PAD      = NODE_R + 16;       // margin from canvas edges
+  const PAD = NODE_R + 16;       // margin from canvas edges
   const MIN_DIST = NODE_R * 2.8;      // minimum gap between node centres
-  nodePositions  = [];
+  nodePositions = [];
 
   for (let i = 0; i < n; i++) {
     let pos, attempts = 0;
@@ -97,17 +97,17 @@ const NODE_R = 22;
 
 function colorForState(state) {
   switch (state) {
-    case 'current': return { fill: '#ffd166',   stroke: '#ffd166', text: '#0d0f1a' };
+    case 'current': return { fill: '#ffd166', stroke: '#ffd166', text: '#0d0f1a' };
     case 'visited': return { fill: '#00d4ff22', stroke: '#00d4ff', text: '#00d4ff' };
-    case 'path':    return { fill: '#00e5a022', stroke: '#00e5a0', text: '#00e5a0' };
-    case 'start':   return { fill: '#6c63ff33', stroke: '#6c63ff', text: '#a5a0ff' };
-    case 'end':     return { fill: '#ff658433', stroke: '#ff6584', text: '#ff9eb2' };
-    default:        return { fill: '#1c1f35',   stroke: '#2a2e4a', text: '#7b82a8' };
+    case 'path': return { fill: '#00e5a022', stroke: '#00e5a0', text: '#00e5a0' };
+    case 'start': return { fill: '#6c63ff33', stroke: '#6c63ff', text: '#a5a0ff' };
+    case 'end': return { fill: '#ff658433', stroke: '#ff6584', text: '#ff9eb2' };
+    default: return { fill: '#1c1f35', stroke: '#2a2e4a', text: '#7b82a8' };
   }
 }
 
 function drawGraph(highlightEdges = []) {
-  const W = canvas.width  / window.devicePixelRatio;
+  const W = canvas.width / window.devicePixelRatio;
   const H = canvas.height / window.devicePixelRatio;
   ctx.clearRect(0, 0, W, H);
 
@@ -125,19 +125,19 @@ function drawGraph(highlightEdges = []) {
     const a = parseInt(e.a), b = parseInt(e.b);
     if (isNaN(a) || isNaN(b) || !nodePositions[a] || !nodePositions[b]) continue;
     const p1 = nodePositions[a], p2 = nodePositions[b];
-    const isHL = highlightEdges.some(h => (h[0]===a && h[1]===b) || (h[0]===b && h[1]===a));
+    const isHL = highlightEdges.some(h => (h[0] === a && h[1] === b) || (h[0] === b && h[1] === a));
     ctx.beginPath();
     ctx.moveTo(p1.x, p1.y);
     ctx.lineTo(p2.x, p2.y);
     if (isHL) {
       ctx.strokeStyle = '#00e5a0';
-      ctx.lineWidth   = 3;
+      ctx.lineWidth = 3;
       ctx.shadowColor = '#00e5a0';
-      ctx.shadowBlur  = 10;
+      ctx.shadowBlur = 10;
     } else {
       ctx.strokeStyle = '#2a2e4a';
-      ctx.lineWidth   = 1.5;
-      ctx.shadowBlur  = 0;
+      ctx.lineWidth = 1.5;
+      ctx.shadowBlur = 0;
     }
     ctx.setLineDash([]);
     ctx.stroke();
@@ -149,10 +149,10 @@ function drawGraph(highlightEdges = []) {
     if (!nodePositions[i]) continue;
     const { x, y } = nodePositions[i];
     const state = nodeState[i] || 'default';
-    const col   = colorForState(state);
+    const col = colorForState(state);
 
     ctx.shadowColor = col.stroke;
-    ctx.shadowBlur  = state === 'current' ? 24 : state === 'path' ? 12 : state === 'visited' ? 6 : 0;
+    ctx.shadowBlur = state === 'current' ? 24 : state === 'path' ? 12 : state === 'visited' ? 6 : 0;
 
     // Fill circle
     ctx.beginPath();
@@ -164,14 +164,14 @@ function drawGraph(highlightEdges = []) {
     ctx.beginPath();
     ctx.arc(x, y, NODE_R, 0, Math.PI * 2);
     ctx.strokeStyle = col.stroke;
-    ctx.lineWidth   = state === 'current' ? 2.5 : 1.8;
+    ctx.lineWidth = state === 'current' ? 2.5 : 1.8;
     ctx.stroke();
-    ctx.shadowBlur  = 0;
+    ctx.shadowBlur = 0;
 
     // Label
-    ctx.fillStyle    = col.text;
-    ctx.font         = `600 ${NODE_R * 0.72}px 'JetBrains Mono', monospace`;
-    ctx.textAlign    = 'center';
+    ctx.fillStyle = col.text;
+    ctx.font = `600 ${NODE_R * 0.72}px 'JetBrains Mono', monospace`;
+    ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     ctx.fillText(String(i), x, y);
   }
@@ -219,7 +219,7 @@ function addEdge() {
   }
   edges.push({ a, b });
   edgeFromIn.value = '';
-  edgeToIn.value   = '';
+  edgeToIn.value = '';
   edgeFromIn.focus();
   renderEdgeList();
   refreshCanvas();
@@ -227,7 +227,7 @@ function addEdge() {
 
 numNodesInput.addEventListener('change', () => {
   numNodes = parseInt(numNodesInput.value) || 5;
-  edges    = edges.filter(e => parseInt(e.a) < numNodes && parseInt(e.b) < numNodes);
+  edges = edges.filter(e => parseInt(e.a) < numNodes && parseInt(e.b) < numNodes);
   renderEdgeList();
   refreshCanvas();
 });
@@ -241,9 +241,9 @@ function refreshCanvas() {
 
 // ── BFS algorithm (generates step list) ──────────────────────────────────────
 function bfsGenerateSteps(graphObj, start, goal) {
-  const steps  = [];
+  const steps = [];
   const visited = new Set();
-  const queue  = [start];
+  const queue = [start];
   const parent = { [start]: null };
 
   steps.push({ type: 'start', node: start, queue: [...queue], visited: [] });
@@ -293,9 +293,9 @@ runBtn.addEventListener('click', startBFS);
 function startBFS() {
   if (running) return;
   buildGraph();
-  const n        = parseInt(numNodesInput.value) || 5;
+  const n = parseInt(numNodesInput.value) || 5;
   const startRaw = startNodeIn.value.trim();
-  const endRaw   = endNodeIn.value.trim();
+  const endRaw = endNodeIn.value.trim();
 
   if (startRaw === '') { showAlert('Please enter a start node.'); return; }
   if (isNaN(parseInt(startRaw)) || parseInt(startRaw) < 0 || parseInt(startRaw) >= n) {
@@ -306,7 +306,7 @@ function startBFS() {
   }
 
   const start = startRaw;
-  const goal  = endRaw || null;
+  const goal = endRaw || null;
 
   clearLog();
   pathResult.classList.remove('visible');
@@ -317,19 +317,16 @@ function startBFS() {
   layoutNodes(numNodes);
   drawGraph();
 
-  bfsSteps    = bfsGenerateSteps(graph, start, goal);
+  bfsSteps = bfsGenerateSteps(graph, start, goal);
   currentStep = 0;
-  running     = true;
-  paused      = false;
-  runBtn.disabled   = true;
+  running = true;
+  paused = false;
+  runBtn.disabled = true;
   pauseBtn.disabled = false;
   setStatus('running');
   logLine(`BFS starting from node <strong>${start}</strong>${goal ? ` → Goal: <strong>${goal}</strong>` : ' (full traversal)'}`, 'log-info');
 
-  const nodeIds = Object.keys(graph).sort((a, b) => parseInt(a) - parseInt(b));
-  visitedChipsEl.innerHTML = nodeIds.map(id => `<div class="vchip" id="vchip-${id}">${id}</div>`).join('');
-  if (goal) document.getElementById(`vchip-${goal}`)?.style.setProperty('border-color', 'var(--accent3)');
-  document.getElementById(`vchip-${start}`)?.style.setProperty('border-color', 'var(--accent)');
+  visitedChipsEl.innerHTML = '';   // chips will be appended in visit order
 
   scheduleStep();
 }
@@ -362,16 +359,20 @@ function applyStep(step) {
       logLine(`<span class="log-info">↳ Queue initialized: [<span class="log-queue">${node}</span>]</span>`);
       break;
 
-    case 'visit':
+    case 'visit': {
       nodeState = nodeState.map(s => s === 'current' ? 'visited' : s);
       nodeState[parseInt(node)] = 'current';
-      if (parseInt(node) !== parseInt(startNodeIn.value)) {
-        document.getElementById(`vchip-${node}`)?.classList.add('current');
-        setTimeout(() => {
-          document.getElementById(`vchip-${node}`)?.classList.remove('current');
-          document.getElementById(`vchip-${node}`)?.classList.add('lit');
-        }, getDelay() * 0.6);
-      }
+      // Append chip in visit order
+      const vc = document.createElement('div');
+      vc.className = 'vchip current';
+      vc.id = `vchip-${node}`;
+      vc.textContent = node;
+      visitedChipsEl.appendChild(vc);
+      setTimeout(() => {
+        vc.classList.remove('current');
+        vc.classList.add('lit');
+      }, getDelay() * 0.6);
+    }
       logLine(`<span class="log-current">▶ Visiting node ${node}</span>  Queue: [<span class="log-queue">${queue.join(', ')}</span>]`);
       break;
 
@@ -379,11 +380,18 @@ function applyStep(step) {
       logLine(`<span style="color:var(--text-muted)">  Neighbors enqueued. Queue → [<span class="log-queue">${queue.join(', ')}</span>]</span>`);
       break;
 
-    case 'goal':
+    case 'goal': {
       nodeState = nodeState.map(s => s === 'current' ? 'visited' : s);
       nodeState[parseInt(node)] = 'current';
+      // Append goal chip in visit order
+      const gc = document.createElement('div');
+      gc.className = 'vchip current';
+      gc.id = `vchip-${node}`;
+      gc.textContent = node;
+      visitedChipsEl.appendChild(gc);
       logLine(`<span class="log-goal">🎯 Goal node ${node} reached!</span>`);
       break;
+    }
 
     case 'path':
       step.path.forEach(n => {
@@ -391,7 +399,7 @@ function applyStep(step) {
           nodeState[parseInt(n)] = 'path';
       });
       nodeState[parseInt(startNodeIn.value.trim())] = 'start';
-      nodeState[parseInt(endNodeIn.value.trim())]   = 'end';
+      nodeState[parseInt(endNodeIn.value.trim())] = 'end';
       for (let i = 0; i < step.path.length - 1; i++)
         pathEdges.push([parseInt(step.path[i]), parseInt(step.path[i + 1])]);
       step.path.forEach(n => {
@@ -421,14 +429,14 @@ function applyStep(step) {
 function finalizeRender() {
   running = false;
   pauseBtn.disabled = true;
-  runBtn.disabled   = false;
+  runBtn.disabled = false;
 }
 
 function finishBFS() {
   running = false;
-  paused  = false;
+  paused = false;
   pauseBtn.disabled = true;
-  runBtn.disabled   = false;
+  runBtn.disabled = false;
   clearTimeout(animTimer);
 }
 
@@ -444,7 +452,7 @@ resetBtn.addEventListener('click', () => {
   clearTimeout(animTimer);
   running = false; paused = false;
   currentStep = -1; bfsSteps = [];
-  runBtn.disabled   = false;
+  runBtn.disabled = false;
   pauseBtn.disabled = true;
   pauseBtn.textContent = '⏸ Pause';
   setStatus('idle');
@@ -474,10 +482,10 @@ clearLogBtn.addEventListener('click', clearLog);
 // ── Status chip ───────────────────────────────────────────────────────────────
 function setStatus(s) {
   const map = {
-    idle:    ['chip-idle',    '<div class="dot"></div> Idle'],
+    idle: ['chip-idle', '<div class="dot"></div> Idle'],
     running: ['chip-running', '<div class="dot pulse"></div> Running…'],
-    done:    ['chip-done',    '<div class="dot"></div> Done'],
-    nopath:  ['chip-nopath',  '<div class="dot"></div> No Path']
+    done: ['chip-done', '<div class="dot"></div> Done'],
+    nopath: ['chip-nopath', '<div class="dot"></div> No Path']
   };
   statusChip.className = 'status-chip ' + map[s][0];
   statusChip.innerHTML = map[s][1];
@@ -512,7 +520,7 @@ presetBtn.addEventListener('click', () => {
   }
 
   startNodeIn.value = '0';
-  endNodeIn.value   = String(n - 1);
+  endNodeIn.value = String(n - 1);
   renderEdgeList();
   refreshCanvas();
   logLine(`Example graph loaded (${n} nodes, ${edges.length} edges). Start: 0, Goal: ${n - 1}.`, 'log-info');
