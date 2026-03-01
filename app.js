@@ -314,7 +314,6 @@ function startBFS() {
   nodeState = Array(numNodes).fill('default');
   nodeState[parseInt(start)] = 'start';
   if (goal) nodeState[parseInt(goal)] = 'end';
-  layoutNodes(numNodes);
   drawGraph();
 
   bfsSteps = bfsGenerateSteps(graph, start, goal);
