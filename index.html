@@ -4,7 +4,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>BFS Simulator</title>
+  <title>City Route Finder — BFS on Indian Roads</title>
+  <meta name="description" content="Interactive BFS pathfinding on a real India map with zoom and pan." />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link
     href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap"
@@ -16,10 +17,10 @@
 
   <div class="container">
     <header>
-      <div class="badge">Algorithm Visualizer</div>
-      <h1>BFS Simulator</h1>
-      <p>Build a graph, pick your start (and optional goal) node, then watch Breadth-First Search unfold step by step.
-      </p>
+      <div class="badge">🗺️ BFS Pathfinding · Indian States Network</div>
+      <h1>State Route Finder</h1>
+      <p>Select a starting state and a destination, then watch Breadth-First Search discover the shortest route across
+        India's state network — step by step.</p>
     </header>
 
     <div class="main-grid">
@@ -33,58 +34,45 @@
               <circle cx="12" cy="12" r="3" />
               <path d="M12 3v2m0 14v2M3 12h2m14 0h2" />
             </svg>
-            Graph Setup
+            Route Setup
           </div>
 
           <div class="form-group">
-            <label for="num-nodes">Number of Nodes</label>
-            <input type="number" id="num-nodes" min="2" max="20" value="5" placeholder="e.g. 5" />
-            <p class="input-hint">Nodes are auto-labelled 0, 1, 2 … n-1</p>
+            <label for="start-city">
+              <span class="city-dot start-dot"></span> Start State
+            </label>
+            <select id="start-city">
+              <option value="">— Select Start State —</option>
+            </select>
           </div>
 
           <div class="form-group">
-            <label>Add Edge</label>
-            <div class="edge-builder">
-              <input type="text" id="edge-from" maxlength="3" placeholder="From" />
-              <span class="edge-arrow">↔</span>
-              <input type="text" id="edge-to" maxlength="3" placeholder="To" />
-              <button class="btn btn-secondary btn-sm" id="add-edge-btn">Add</button>
-            </div>
-            <div id="alert-box" class="alert alert-error"></div>
-            <div class="edge-list" id="edge-list"><span class="log-empty">No edges yet…</span></div>
+            <label for="end-city">
+              <span class="city-dot end-dot"></span> Destination State
+            </label>
+            <select id="end-city">
+              <option value="">— Select Destination —</option>
+            </select>
           </div>
 
-          <button class="btn btn-secondary btn-sm" id="preset-btn" style="width:100%;margin-bottom:10px;">
-            ✦ Load Example Graph
-          </button>
-
-          <hr class="divider" />
-
-          <div class="form-group">
-            <label for="start-node">Start Node</label>
-            <input type="text" id="start-node" maxlength="3" placeholder="e.g. 0" />
-          </div>
-
-          <div class="form-group">
-            <label for="end-node">Goal Node <span
-                style="color:var(--text-muted);font-weight:400">(optional)</span></label>
-            <input type="text" id="end-node" maxlength="3" placeholder="e.g. 4" />
-            <p class="input-hint">Leave empty for full traversal</p>
-          </div>
+          <div id="alert-box" class="alert alert-error"></div>
 
           <button class="btn btn-primary" id="run-btn">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
               <path d="M5 3l14 9-14 9V3z" />
             </svg>
-            Run BFS
+            Find Shortest Path
           </button>
+
+          <p class="input-hint" style="margin-top:10px;">State borders are pre-mapped. BFS finds the fewest-hop route.
+          </p>
 
           <hr class="divider" />
 
           <!-- Speed -->
           <div class="speed-row">
             <label>Speed</label>
-            <input type="range" id="speed-slider" min="100" max="2000" value="800" step="100" />
+            <input type="range" id="speed-slider" min="150" max="2000" value="800" step="50" />
             <span class="speed-val" id="speed-label">0.8s</span>
           </div>
 
@@ -97,21 +85,28 @@
           <hr class="divider" />
           <div class="legend">
             <div class="legend-item">
-              <div class="legend-dot" style="background:var(--accent);border:2px solid var(--node-border)"></div>
-              Unvisited
+              <div class="legend-dot" style="background:#1c1f35;border:2px solid #6c63ff"></div>State
             </div>
             <div class="legend-item">
-              <div class="legend-dot" style="background:var(--yellow)"></div> Current
+              <div class="legend-dot" style="background:#6c63ff"></div>Start
             </div>
             <div class="legend-item">
-              <div class="legend-dot" style="background:var(--accent2)"></div> Visited
+              <div class="legend-dot" style="background:#ff6584"></div>Destination
             </div>
             <div class="legend-item">
-              <div class="legend-dot" style="background:var(--green)"></div> Path
+              <div class="legend-dot" style="background:#ffd166"></div>Current
             </div>
             <div class="legend-item">
-              <div class="legend-dot" style="background:var(--accent3)"></div> Goal
+              <div class="legend-dot" style="background:#00d4ff"></div>Visited
             </div>
+            <div class="legend-item">
+              <div class="legend-dot" style="background:#00e5a0"></div>Shortest Path
+            </div>
+          </div>
+
+          <div class="road-legend">
+            <div class="road-sample unvisited-road"></div> Road
+            <div class="road-sample path-road" style="margin-left:12px;"></div> Shortest Path
           </div>
 
         </div>
@@ -120,8 +115,18 @@
       <!-- RIGHT: Canvas + logs -->
       <div class="canvas-panel">
 
-        <div class="canvas-wrap">
-          <canvas id="bfs-canvas" height="400"></canvas>
+        <div class="canvas-wrap" id="canvas-wrap">
+          <!-- Top overlay: label + zoom controls -->
+          <div class="map-overlay-bar">
+            <span class="map-label">India — Road Network</span>
+            <div class="zoom-controls">
+              <button class="zoom-btn" id="zoom-in-btn" title="Zoom in">+</button>
+              <button class="zoom-btn" id="zoom-reset-btn" title="Reset view">⊙</button>
+              <button class="zoom-btn" id="zoom-out-btn" title="Zoom out">−</button>
+            </div>
+          </div>
+          <div class="map-hint">Scroll to zoom · Drag to pan</div>
+          <canvas id="bfs-canvas"></canvas>
         </div>
 
         <!-- Status + visited order -->
@@ -140,13 +145,15 @@
           <div style="margin-top:14px;">
             <div
               style="font-size:0.75rem;color:var(--text-muted);font-weight:600;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px;">
-              Visited Order</div>
+              Cities Visited
+            </div>
             <div class="visited-chips" id="visited-chips"><span class="log-empty">—</span></div>
           </div>
 
           <div class="path-result" id="path-result">
-            <div class="path-label">📍 Shortest Path</div>
+            <div class="path-label">📍 Shortest Route</div>
             <div class="path-value" id="path-value"></div>
+            <div class="path-hops" id="path-hops"></div>
           </div>
         </div>
 
@@ -163,7 +170,7 @@
             <button class="btn btn-secondary btn-sm" id="clear-log-btn">Clear</button>
           </div>
           <div class="log-body" id="log-body">
-            <div class="log-line log-info"><span>Configure your graph and press <strong>Run BFS</strong> to
+            <div class="log-line log-info"><span>Select cities and press <strong>Find Shortest Path</strong> to
                 start.</span></div>
           </div>
         </div>
@@ -172,6 +179,7 @@
     </div>
   </div>
 
+  <script src="india_states.js"></script>
   <script src="app.js"></script>
 </body>
 
