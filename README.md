@@ -2,7 +2,7 @@
 
 An interactive, browser-based **Breadth-First Search (BFS)** visualizer. Build a custom graph, set a start and optional goal node, and watch the algorithm traverse step by step — with live queue updates, path highlighting, and a detailed log.
 
-🔗 **[Live Demo](https://chinmaycholin.github.io/bfs-simulator/)**
+🔗 **[Live Demo](https://chinmaycholin.github.io/BFS-State-Route/)**
 
 ---
 
