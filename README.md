@@ -1,6 +1,6 @@
-# BFS Simulator
+# State Route Finder — BFS on Indian States
 
-An interactive, browser-based **Breadth-First Search (BFS)** visualizer. Build a custom graph, set a start and optional goal node, and watch the algorithm traverse step by step — with live queue updates, path highlighting, and a detailed log.
+An interactive, browser-based **Breadth-First Search (BFS)** pathfinder built on a real map of India. Select a starting state and a destination, then watch BFS discover the shortest route across India's state border network — step by step.
 
 🔗 **[Live Demo](https://chinmaycholin.github.io/BFS-State-Route/)**
 
@@ -8,63 +8,73 @@ An interactive, browser-based **Breadth-First Search (BFS)** visualizer. Build a
 
 ## Features
 
-- 🎨 **Interactive graph builder** — set node count, add/remove edges manually, or load a random example graph
-- 🎬 **Step-by-step animation** — watch BFS visit nodes one at a time with configurable speed
-- 🔍 **Shortest path highlighting** — finds and highlights the path between start and goal nodes
-- 📋 **Live BFS log** — shows each node visited and the current queue state
+- 🗺️ **Real India map background** — state nodes are placed at their actual geographic positions on `india_bg.png`
+- 🔍 **Shortest path finding** — BFS finds the fewest-hop route between any two Indian states via shared borders
+- 🎬 **Step-by-step animation** — watch BFS visit states one at a time with configurable speed
+- � **Zoom & pan** — scroll to zoom, drag to pan; pinch-to-zoom supported on touch devices
+- 📋 **Live BFS log** — shows each state visited and the current queue at every step
 - ⏸ **Playback controls** — pause, resume, and reset at any time
-- 🎲 **Random layout** — nodes are placed randomly on the canvas (no boring circles)
+- 🟢 **Shortest path highlight** — the final route is drawn as a glowing green trail on the map
 
 ## Node Color Guide
 
 | Color | Meaning |
 |-------|---------|
-| 🟣 Purple | Unvisited |
-| 🟡 Yellow | Currently being processed |
+| 🟣 Purple / Dark | Unvisited state |
+| � Purple (filled) | Start state |
+| 🔴 Pink | Destination state |
+| �🟡 Yellow | Currently being processed |
 | 🔵 Cyan | Already visited |
 | 🟢 Green | On the shortest path |
-| 🔴 Pink | Goal node |
 
 ## How to Use
 
-1. Enter the **number of nodes** (2–20)
-2. Add **edges** manually (From ↔ To) — or click **✦ Load Example Graph** to auto-generate one
-3. Set a **Start Node** and optionally a **Goal Node** (leave blank for full traversal)
-4. Click **▶ Run BFS** and watch it go
-5. Use **⏸ Pause**, **▶ Resume**, and **↺ Reset** to control playback
-6. Drag the **Speed** slider to adjust animation delay (0.1s – 2s)
+1. Select a **Start State** from the dropdown
+2. Select a **Destination State** from the dropdown
+3. Click **▶ Find Shortest Path** to begin the BFS animation
+4. Use **⏸ Pause** / **▶ Resume** and **↺ Reset** to control playback
+5. Drag the **Speed** slider to adjust animation delay (0.15s – 2s)
+6. Use **Scroll** or the **+/−** buttons to zoom; **Drag** to pan the map
 
 ## Project Structure
 
 ```
 bfs-simulator/
-├── index.html   # HTML structure
-├── style.css    # Styles & animations
-└── app.js       # BFS logic, canvas rendering, event handlers
+├── index.html        # HTML structure & UI controls
+├── style.css         # Styles & animations (dark theme, glassmorphism)
+├── app.js            # BFS logic, canvas rendering, zoom/pan, event handlers
+├── india_states.js   # State node positions (as image fractions) & border adjacency edges
+└── india_bg.png      # India map background image
 ```
+
+## Graph Data (`india_states.js`)
+
+- **30 Indian states** are defined with normalized `(fx, fy)` coordinates matching their position on the map image.
+- **Border adjacency edges** represent states that share a physical border (e.g. `Maharashtra ↔ Goa`).
+- The adjacency list is built at runtime in `app.js` from these edges.
 
 ## BFS Algorithm
 
-The simulator implements standard BFS using a queue:
+The simulator implements standard BFS using a queue to find the shortest (fewest-hop) path:
 
 ```
-1. Enqueue start node
+1. Enqueue start state
 2. While queue is not empty:
-   a. Dequeue front node
+   a. Dequeue front state
    b. If already visited, skip
    c. Mark as visited
-   d. If goal node reached, reconstruct & return path
-   e. Enqueue all unvisited neighbours
+   d. If goal state reached, reconstruct & display path
+   e. Enqueue all unvisited border-neighbours
 ```
 
-Path reconstruction backtracks from goal → start using a `parent` map.
+Path reconstruction backtracks from `goal → start` using a `parent` map.
 
 ## Running Locally
 
 No build tools needed — just open `index.html` in any modern browser.
 
 ```bash
-git clone https://github.com/chinmaycholin/bfs-simulator.git
-cd bfs-simulator
+git clone https://github.com/chinmaycholin/BFS-State-Route.git
+cd BFS-State-Route
 # open index.html in your browser
 ```
